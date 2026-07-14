@@ -1,0 +1,13 @@
+# IDE
+.idea/
+.vscode/
+*.local
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend (Gradle / H2)
+backend/**/build/
+backend/**/.gradle/
+backend/**/*.db

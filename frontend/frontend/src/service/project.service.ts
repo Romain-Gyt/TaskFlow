@@ -3,7 +3,7 @@ import {ProjectSchemaList, type Project } from '@/types/project.types.ts';
 
 export const projectService = {
   async getAll(): Promise<Project[]>{
-    const response = await api.get('/api/project')
+    const response = await api.get('/api/projects')
     return ProjectSchemaList.parse(response.data);
   }
 }

@@ -1,4 +1,6 @@
 package com.arkea.taskflow.dto;
 
-public record TaskResponse() {
+import java.util.UUID;
+
+public record TaskResponse(UUID id, String title,String status,UUID projectId) {
 }
