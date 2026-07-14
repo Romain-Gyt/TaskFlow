@@ -14,9 +14,8 @@ onMounted(async () => {
 });
 
 // Gère proprement la suppression sans curryfication
-const handleTaskDelete = (projectId: string, taskId: string) => {
-  deleteLocalTask(projectId, taskId);
-};
+const handleTaskDelete = (projectId: string,taskId: string) => deleteLocalTask(projectId, taskId);
+;
 
 // Fonction centralisée pour filtrer les tâches en évitant les calculs lourds dans le template
 const getTasksByStatus = (tasks: Task[], status: string) => {

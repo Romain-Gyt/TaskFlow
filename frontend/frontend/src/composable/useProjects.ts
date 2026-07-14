@@ -19,7 +19,7 @@ export function useProjects(){
     }
   }
   return {
-   projects,
+   projects: readonly(projects),
     loading: readonly(loading),
     error: readonly(error),
     fetchProjects
