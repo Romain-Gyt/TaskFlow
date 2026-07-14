@@ -5,15 +5,15 @@ import type { Project } from '@/types/project.types.ts';
 export function useProjects(){
   const projects = ref<Project[]>([]);
   const loading = ref(false);
-  const error = ref<String | null>(null);
+  const error = ref<string | null>(null);
 
   async function fetchProjects(){
     loading.value = true;
     error.value = null;
     try {
       projects.value = await projectService.getAll();
-    } catch (err: any){
-      error.value = err.message;
+    } catch (err){
+      error.value = err instanceof Error ? err.message : String(err);
     } finally {
       loading.value = false;
     }
