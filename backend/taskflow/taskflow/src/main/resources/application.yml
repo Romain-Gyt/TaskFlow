@@ -14,3 +14,5 @@ spring.h2.console.path=/h2-console
 # Affichage des requêtes SQL d'Hibernate dans tes logs de console
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+# Active l'utilisation des Virtual Threads pour le traitement des requêtes HTTP Tomcat
+spring.threads.virtual.enabled=true
