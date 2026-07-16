@@ -1,14 +1,23 @@
 package com.arkea.taskflow.mapper;
 
+import com.arkea.taskflow.dto.CreateTaskRequest;
+import com.arkea.taskflow.dto.ProjectTaskRequest;
 import com.arkea.taskflow.dto.TaskResponse;
 import com.arkea.taskflow.model.Task;
-import jakarta.persistence.ManyToOne;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        builder = @Builder(disableBuilder = true)
+)
 public interface TaskMapper {
+    @Mapping(target = "id", ignore = true)
+    Task fromRequest(ProjectTaskRequest taskRequest);
+    @Mapping(target = "id", ignore = true)
+    Task fromTaskRequest(CreateTaskRequest taskRequest);
     @Mapping(target = "projectId", source = "project.id")
     TaskResponse toResponse(Task task);
 }

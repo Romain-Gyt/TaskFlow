@@ -1,4 +1,10 @@
 package com.arkea.taskflow.dto;
 
-public class CreateTaskRequest {
-}
+
+import java.util.UUID;
+
+// 💡 Ici, le projectId est obligatoire
+public record CreateTaskRequest(
+       String title,
+        UUID projectId
+) {}

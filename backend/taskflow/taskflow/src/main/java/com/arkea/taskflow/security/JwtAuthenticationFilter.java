@@ -11,14 +11,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
-public class JwtAuthentificationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    public JwtAuthentificationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
@@ -27,6 +26,12 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         String token = null;
         if(request.getCookies() != null) {
             token = Arrays.stream(request.getCookies())
@@ -45,8 +50,12 @@ public class JwtAuthentificationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception ex) {
+                System.out.println("❌ ÉCHEC VALIDATION JWT : " + ex.getMessage());
+                ex.printStackTrace();
                 SecurityContextHolder.clearContext();
             }
         }
+
+        filterChain.doFilter(request, response);
     }
 }

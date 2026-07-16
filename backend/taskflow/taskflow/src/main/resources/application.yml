@@ -1,18 +1,48 @@
-spring.application.name=taskflow
-# Fixer le nom de la base de données pour éviter l'identifiant aléatoire
-spring.datasource.url=jdbc:h2:mem:taskflowdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-# Indique à Hibernate de créer et mettre à jour automatiquement les tables selon tes entités @Entity
-spring.jpa.hibernate.ddl-auto=update
-# Activer la console Web H2
-spring.h2.console.enabled=true
-# Définir le chemin d'accès à la console
-spring.h2.console.path=/h2-console
+spring:
+  application:
+    name: taskflow
 
-# Affichage des requêtes SQL d'Hibernate dans tes logs de console
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-# Active l'utilisation des Virtual Threads pour le traitement des requêtes HTTP Tomcat
-spring.threads.virtual.enabled=true
+  # Configuration de la base de donnÃ©es H2
+  datasource:
+    url: jdbc:h2:mem:taskflowdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  # Console Web H2 (utile pour dÃ©boguer rapidement)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Configuration JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Activation des Virtual Threads de Java 21+ (Tomcat)
+  threads:
+    virtual:
+      enabled: true
+
+# Configuration personnalisÃ©e de ton moteur de scoring RSE
+rse:
+  scoring:
+    carbon:
+      name: "CARBON_FOOTPRINT"
+      high-score: 50
+      default-score: 10
+      keywords:
+        - "maven"
+        - "infrastructure"
+    inclusion:
+      name: "DIGITAL_INCLUSION"
+      high-score: 40
+      default-score: 5
+      keywords:
+        - "ui"
+        - "accessibilitÃ©"
