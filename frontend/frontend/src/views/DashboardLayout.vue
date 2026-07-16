@@ -9,6 +9,7 @@
       <nav>
         <!-- RouterLink permet de naviguer sans recharger la page -->
         <RouterLink to="/dashboard/kanban" class="nav-link">📋 Kanban Board</RouterLink>
+        <RouterLink to="/dashboard/project" class="nav-link">Créer projet</RouterLink>
       </nav>
     </aside>
 

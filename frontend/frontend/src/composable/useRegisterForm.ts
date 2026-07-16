@@ -1,17 +1,16 @@
 import {
-  createEmptyRegisterPayload,
+  createEmptyRegisterForm, LoginPayloadSchema,
   type RegisterPayload,
-  RegisterSchema
 } from "@/types/user.type.ts";
 import {ref} from "vue";
 import {useFormValidation} from "@/composable/useFormValidation.ts";
 
 export function useRegisterForm(){
-  const user = ref<RegisterPayload>(createEmptyRegisterPayload());
+  const user = ref<RegisterPayload>(createEmptyRegisterForm());
   const isLoading = ref(false);
 
   // On initialise le validateur avec le schéma d'inscription
-  const { errors, validate, clearErrors } = useFormValidation(RegisterSchema);
+  const { errors, validate, clearErrors } = useFormValidation(LoginPayloadSchema);
 
   const register = async () => {
     // On valide les refs locales face au schéma

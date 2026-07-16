@@ -3,10 +3,10 @@ import { onMounted } from "vue";
 import TaskCard from "@/components/molecules/TaskCard.vue";
 import { useProjectStore } from "@/stores/project.store.ts";
 import { storeToRefs } from "pinia";
-import type { Task } from "@/types/project.types.ts"; // Assure-toi d'avoir le type Task importé
+import type { Task } from "@/types/task.types.ts";
 
 const store = useProjectStore();
-const { projects, isLoading, error, canUndo, canRedo } = storeToRefs(store);
+const { projects, isLoading, canUndo, canRedo } = storeToRefs(store);
 const { loadProjects, deleteLocalTask, undo, redo } = store;
 
 onMounted(async () => {
