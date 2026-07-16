@@ -5,10 +5,10 @@ import { useAuthForm } from "@/composable/useAuthForm";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const { email, password, emailError, passwordError, globalError, isLoading, login } = useAuthForm();
+const {loginPayload,validationErrors,apiError,isSubmitting,handleLogin } = useAuthForm();
 
 const handleSubmit = async () => {
-  const success = await login();
+  const success = await handleLogin();
   if (success) {
     await router.push("/dashboard");
   }
@@ -23,28 +23,28 @@ const handleSubmit = async () => {
       <p>Accédez à votre espace de gestion Kanban</p>
     </div>
 
-    <div v-if="globalError" class="alert-error" aria-live="assertive">
-      ⚠️ {{ globalError }}
+    <div v-if="apiError" class="alert-error" aria-live="assertive">
+      ⚠️ {{ apiError }}
     </div>
 
     <form @submit.prevent="handleSubmit" class="form-layout" novalidate>
       <FormField
-        v-model="email"
+        v-model="loginPayload.email"
         label="Adresse email"
         :required="true"
-        :error="emailError"
-        :disabled="isLoading"
+        :error="validationErrors.email"
+        :disabled="isSubmitting"
         type="email"
         placeholder="jean.dupont@arkea.com"
         autocomplete="username"
       />
 
       <FormField
-        v-model="password"
+        v-model="loginPayload.password"
         label="Mot de passe"
         :required="true"
-        :error="passwordError"
-        :disabled="isLoading"
+        :error="validationErrors.password"
+        :disabled="isSubmitting"
         type="password"
         placeholder="••••••••"
         autocomplete="current-password"
@@ -52,16 +52,16 @@ const handleSubmit = async () => {
 
       <div class="form-options">
         <label class="remember-me">
-          <input type="checkbox" :disabled="isLoading" /> Se souvenir de moi
+          <input type="checkbox" :disabled="isSubmitting" /> Se souvenir de moi
         </label>
         <a href="#" class="forgot-link">Mot de passe oublié ?</a>
       </div>
 
       <BaseButton
         type="submit"
-        :label="isLoading ? 'Connexion...' : 'Se connecter'"
+        :label="isSubmitting ? 'Connexion...' : 'Se connecter'"
         variant="primary"
-        :disabled="isLoading"
+        :disabled="isSubmitting"
       />
     </form>
   </div>

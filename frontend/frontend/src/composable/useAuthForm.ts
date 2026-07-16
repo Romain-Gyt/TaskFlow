@@ -1,67 +1,30 @@
 import { ref } from "vue";
+import { LoginPayloadSchema, createEmptyLoginForm, type LoginPayload } from "@/types/user.type.ts";
+import { useFormValidation } from "@/composable/useFormValidation.ts";
+import { useAsync } from "@/composable/useAsync.ts"; // Ton nouveau composable !
+import { authService } from "@/service/auth.service.ts";
 
 export function useAuthForm() {
-  const email = ref("");
-  const password = ref("");
+  const { errors: validationErrors, validate, clearErrors } = useFormValidation(LoginPayloadSchema);
+  const loginPayload = ref<LoginPayload>(createEmptyLoginForm());
 
-  const emailError = ref("");
-  const passwordError = ref("");
-  const globalError = ref("");
-  const isLoading = ref(false);
+  const { loading: isSubmitting, error: apiError, execute: runLogin } = useAsync(authService.login);
 
-  const validateForm = (): boolean => {
-    let isValid = true;
+  const handleLogin = async (): Promise<boolean> => {
+    clearErrors();
 
-    if (!email.value.includes("@arkea.com")) {
-      emailError.value = "Veuillez utiliser votre adresse email professionnelle Arkéa.";
-      isValid = false;
-    } else {
-      emailError.value = "";
-    }
+    const isValid =  validate(loginPayload.value);
+    if (!isValid) return false;
 
-    if (password.value.length < 8) {
-      passwordError.value = "Le mot de passe doit contenir au moins 8 caractères.";
-      isValid = false;
-    } else {
-      passwordError.value = "";
-    }
-
-    return isValid;
-  };
-
-  const login = async () => {
-    globalError.value = "";
-    if (!validateForm()) return;
-
-    isLoading.value = true;
-    try {
-      // Simulation API (À remplacer plus tard par ton vrai service/store d'authentification)
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (email.value === "admin@arkea.com" && password.value === "password123") {
-            resolve(true);
-          } else {
-            reject(new Error("Identifiants incorrects. Veuillez réessayer."));
-          }
-        }, 1500);
-      });
-
-      return true; // Connexion réussie
-    } catch (err: any) {
-      globalError.value = err.message || "Une erreur est survenue.";
-      return false; // Échec
-    } finally {
-      isLoading.value = false;
-    }
+    const result = await runLogin(loginPayload.value);
+    return !!result;
   };
 
   return {
-    email,
-    password,
-    emailError,
-    passwordError,
-    globalError,
-    isLoading,
-    login
+    loginPayload,
+    validationErrors,
+    apiError,
+    isSubmitting,
+    handleLogin,
   };
 }
