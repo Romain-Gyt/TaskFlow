@@ -1,5 +1,6 @@
-package engine;
+package com.arkea.taskflow.engine;
 
+import com.arkea.taskflow.dto.TaskResponse;
 import com.arkea.taskflow.model.Task;
 import com.arkea.taskflow.strategy.RseScoringStrategy;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class RsePointsEngine {
                 ));
     }
 
-    public int calculateTotalScore(Task task) {
+    public int calculateTotalScore(TaskResponse task) {
         return strategies.values().stream()
                 .mapToInt(strategy -> strategy.calculateRseScore(task))
                 .sum();

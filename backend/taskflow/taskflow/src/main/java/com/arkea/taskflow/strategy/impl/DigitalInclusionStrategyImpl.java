@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DigitalInclusionStrategyImpl extends AbstractRseScoringStrategy {
     public DigitalInclusionStrategyImpl(RseScoringProperties properties) {
-       super(properties.carbon());
+       super(properties.inclusion());
     }
 
 }

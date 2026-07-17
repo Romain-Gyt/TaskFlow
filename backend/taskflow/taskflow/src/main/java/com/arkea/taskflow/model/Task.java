@@ -74,11 +74,16 @@ public class Task {
 
     // Le Builder Statique
     public static class Builder {
+        private UUID id;
         private String title;
         private String status;
 
         private Builder() {}
 
+        public Builder id(String id) {
+            if(id != null && !id.isBlank()) this.id = UUID.fromString(id);
+            return this;
+        }
         public Builder title(String title) {
             this.title = title;
             return this;

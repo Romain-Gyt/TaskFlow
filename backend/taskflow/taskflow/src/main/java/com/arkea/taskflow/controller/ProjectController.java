@@ -27,10 +27,10 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<ProjectResponse> getAllProjects() throws InterruptedException {
-        log.info("Traitement de la requête sur le thread : {}", Thread.currentThread());
-        Thread.sleep(200);
-        return projectService.findAllProjects();
+    public List<ProjectResponse> getAllProjects() {
+        List<ProjectResponse> projects = projectService.findAllProjects();
+        log.info("[API GET] Liste des projets récupérée. Nombre de projets : {}", projects);
+        return projects;
     }
 
     @GetMapping("/{id}")
@@ -59,7 +59,9 @@ public class ProjectController {
             @RequestBody ProjectRequest projectRequest
     ) {
         log.info("[API PUT] Requête de mise à jour reçue pour l'ID : {} avec le corps : {}", id, projectRequest);
+        if(projectRequest.id() != null && !projectRequest.id().equals(id) )throw new IllegalArgumentException("Incohérence détectée : L'ID de la requête ne correspond pas à l'ID de l'URL.");
         ProjectResponse updatedProject = projectService.updateProject(id, projectRequest);
+        log.info("Mise a jour du projet : {}", updatedProject);
         return ResponseEntity.ok(updatedProject);
     }
 
@@ -67,6 +69,18 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(@PathVariable String id){
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/rse-score")
+    public ResponseEntity<Integer> getGlobalRseScore() {
+        // 1. Récupérer tous les projets de la base
+        List<ProjectResponse> projects = projectService.findAllProjects();
+
+        // 2. Calculer le score global
+        int totalScore = projectService.calculateRseScore(projects);
+
+        // 3. Renvoyer le score brut
+        return ResponseEntity.ok(totalScore);
     }
 
 }

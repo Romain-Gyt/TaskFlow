@@ -1,6 +1,7 @@
 package com.arkea.taskflow.strategy.impl;
 
 import com.arkea.taskflow.config.RseScoringProperties;
+import com.arkea.taskflow.dto.TaskResponse;
 import com.arkea.taskflow.model.Task;
 import com.arkea.taskflow.strategy.RseScoringStrategy;
 
@@ -13,12 +14,12 @@ public class AbstractRseScoringStrategy implements RseScoringStrategy {
     }
 
     @Override
-    public int calculateRseScore(Task task) {
-        if (task == null || task.getTitle() == null) {
+    public int calculateRseScore(TaskResponse task) {
+        if (task == null || task.title() == null) {
             return config.defaultScore();
         }
 
-        String titleLower = task.getTitle().toLowerCase();
+        String titleLower = task.title().toLowerCase();
 
         boolean hasKeyword = config.keywords().stream()
                 .map(String::toLowerCase)

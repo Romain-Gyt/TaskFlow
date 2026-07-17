@@ -13,4 +13,5 @@ public interface ProjectService {
     ProjectResponse createProject(ProjectRequest project);
     ProjectResponse updateProject(String id,ProjectRequest project);
     void deleteProject(String id);
+    int calculateRseScore(List<ProjectResponse> projects);
 }
