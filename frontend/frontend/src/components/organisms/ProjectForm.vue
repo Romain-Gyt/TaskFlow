@@ -2,33 +2,67 @@
 import { useProjectStore } from "@/stores/project.store.ts";
 import { storeToRefs } from "pinia";
 import {createEmptyProjectForm, type ProjectRequest} from "@/types/project.types.ts";
-import router from "@/router";
-import {ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import TaskProjectManager from "@/components/organisms/TaskProjectManager.vue";
+import {useRoute, useRouter} from "vue-router";
 
 const store = useProjectStore();
-const {  isCreating, createError } = storeToRefs(store);
-const { addProject } = store;
+const route = useRoute();
+const router = useRouter();
+const { isSingleLoading, isCreating, isUpdating, createError, updateError } = storeToRefs(store);
+const { getProjectById,addProject, updateProject } = store;
 
 const project = ref<ProjectRequest>(createEmptyProjectForm());
 
+const projectId = computed(() => route.params.id as string | undefined);
+const isEditMode = computed(() => !!projectId.value);
+
+watch(isEditMode, (editMode) => {
+  if (!editMode) {
+    project.value = createEmptyProjectForm();
+  }
+});
+
+onMounted(async () => {
+  if (isEditMode.value && projectId.value) {
+    const existingProject = await getProjectById(projectId.value);
+    console.log(existingProject);
+    if (existingProject) {
+      project.value = {
+        name: existingProject.name,
+        description: existingProject.description,
+        tasks: existingProject.tasks,
+      };
+    } else {
+      await router.push({ name: "kanban-board" });
+    }
+  }
+});
 const handleSubmit = async () => {
-  console.log(project.value);
-  const success = await addProject(project.value);
-  console.log(success);
+  let success = false;
+
+  if (isEditMode.value && projectId.value) {
+    const updated = await updateProject(projectId.value, project.value);
+    success = !!updated;
+  } else {
+    const created = await addProject(project.value);
+    success = !!created;
+  }
   if (success) {
     project.value = createEmptyProjectForm();
-    await router.push({ name: "kanban-board" }); // Utilise de préférence l'objet de route
+    await router.push({name: "kanban-board"});
   }
 }
+
 </script>
 
 <template>
   <div class="form-container">
     <div class="form-card">
       <header class="form-header">
-        <h1>Nouveau Projet</h1>
-        <p>Créez un nouvel espace de travail pour organiser vos tâches.</p>
+        <p v-if="isSingleLoading"> Le projet est en cours de chargement....</p>
+        <h1>{{ isEditMode ? "Modifier le projet" : "Nouveau projet"}}</h1>
+        <p>{{ isEditMode ? "Modifiez" : "Créez"}} un nouvel espace de travail pour organiser vos tâches.</p>
       </header>
 
       <form @submit.prevent="handleSubmit" class="project-form">
@@ -41,7 +75,7 @@ const handleSubmit = async () => {
             type="text"
             placeholder="Ex: Refonte du site vitrine"
             required
-            :disabled="isCreating"
+            :disabled="isEditMode? isUpdating : isCreating"
             autocomplete="off"
           />
         </div>
@@ -54,7 +88,7 @@ const handleSubmit = async () => {
             v-model="project.description"
             placeholder="Décrivez brièvement les objectifs de ce projet..."
             required
-            :disabled="isCreating"
+            :disabled="isEditMode? isUpdating : isCreating"
             rows="4"
           ></textarea>
         </div>
@@ -62,13 +96,13 @@ const handleSubmit = async () => {
         <!-- 💡 Tu injectes l'organisme directement en le bindant sur les tâches du projet local ! -->
         <TaskProjectManager
           v-model="project.tasks"
-          :disabled="isCreating"
+          :disabled="isEditMode? isUpdating : isCreating"
         />
 
         <!-- Message d'erreur API -->
         <div v-if="createError" class="error-banner" role="alert">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          <span>{{ createError }}</span>
+          <span>{{  isEditMode ? updateError :createError }}</span>
         </div>
 
         <!-- Actions -->
@@ -77,7 +111,7 @@ const handleSubmit = async () => {
             type="button"
             class="btn-secondary"
             @click="router.push({ name: 'kanban-board' })"
-            :disabled="isCreating"
+            :disabled="isEditMode? isUpdating : isCreating"
           >
             Annuler
           </button>
@@ -88,7 +122,7 @@ const handleSubmit = async () => {
             :disabled="isCreating || !project.name || !project.description"
           >
             <span v-if="isCreating" class="spinner"></span>
-            <span>{{ isCreating ? 'Création...' : 'Créer le projet' }}</span>
+            <span>{{ isEditMode ? 'Modifier' : 'Créer le projet' }}</span>
           </button>
         </div>
       </form>

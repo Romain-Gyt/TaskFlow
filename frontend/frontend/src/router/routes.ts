@@ -20,6 +20,12 @@ export const routes: RouteRecordRaw[]=[
         meta: { requiresAuth: true },
       },
       {
+        path: 'projects/edit/:id',
+        name: 'project-edit',
+        component: () => import('@/components/organisms/ProjectForm.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'kanban',
         name: 'kanban-board',
         component: () => import('@/components/organisms/ProjectList.vue'),

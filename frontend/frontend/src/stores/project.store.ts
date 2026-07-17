@@ -5,23 +5,26 @@ import { useAsync } from "@/composable/useAsync.ts";
 import {createEmptyProjectForm, type Project, type ProjectRequest} from "@/types/project.types.ts";
 
 export const useProjectStore = defineStore('project', () => {
-  // L'état réactif principal de nos projets
   const projects = ref<Project[]>([]);
-
-  // Historique pour l'Undo/Redo
   const undoStack = ref<string[]>([]);
   const redoStack = ref<string[]>([]);
 
   const canUndo = computed(() => undoStack.value.length > 0);
   const canRedo = computed(() => redoStack.value.length > 0);
 
-
-  // 1. Pour la récupération (GET)
+  // 1. Pour la récupération de TOUS les projets (GET)
   const {
     loading: isLoading,
     error: fetchError,
     execute: fetchProjectsApi
   } = useAsync(() => projectService.getAll());
+
+  // 💡 1b. NOUVEAU : Pour la récupération d'un SEUL projet (GET /{id})
+  const {
+    loading: isSingleLoading,
+    error: singleFetchError,
+    execute: fetchSingleProjectApi
+  } = useAsync((id: string) => projectService.getProjectById(id)); // Assure-toi que cette méthode existe dans ton projectService
 
   // 2. Pour la création (POST)
   const {
@@ -30,12 +33,20 @@ export const useProjectStore = defineStore('project', () => {
     execute: createProjectApi
   } = useAsync((dto: ProjectRequest) => projectService.createProject(dto));
 
-  // 3. Pour la mise à jour (PUT)
-  /*const {
+  // 💡 3. UNCOMMENT & FIX : Pour la mise à jour (PUT)
+  const {
     loading: isUpdating,
     error: updateError,
     execute: updateProjectApi
-  } = useAsync((id: string, dto: ProjectRequest) => projectService.update(id, dto)); */
+  } = useAsync((id: string, dto: ProjectRequest) => projectService.updateProject(id, dto));
+  // Note : useAsync prend généralement un seul argument, on passe donc un objet { id, dto }
+
+  // 4. Pour la SUPPRESSION (DELETE)
+  const {
+    loading: isDeleting,
+    error: deleteError,
+    execute: deleteProjectApi
+  } = useAsync((id: string) => projectService.deleteProject(id));
 
 
   // ==========================================
@@ -49,22 +60,32 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function getProjectById(id: string): Promise<Project | null> {
+    // 1. Optionnel : On regarde si on l'a déjà en local pour aller vite
+    const localProject = projects.value.find(p => p.id === id);
+    if (localProject) return localProject;
+
+    // 2. Sinon, on interroge l'API
+    return await fetchSingleProjectApi(id);
+  }
+
   async function addProject(dto: ProjectRequest): Promise<Project | null> {
-    saveSnapshot(); // On prépare l'annulation
+    saveSnapshot();
     const newProject = await createProjectApi(dto);
 
     if (newProject) {
       projects.value.push(newProject);
       return newProject;
     } else {
-      undoStack.value.pop(); // Annule le snapshot si l'API a échoué
+      undoStack.value.pop();
       return null;
     }
   }
 
-  /* async function updateProject(id: string, dto: ProjectRequest): Promise<Project | null> {
+  // 💡 ACTION DE MISE À JOUR DÉCOMMENTÉE
+  async function updateProject(id: string, dto: ProjectRequest): Promise<Project | null> {
     saveSnapshot();
-    const updatedProject = await updateProjectApi(id, dto);
+    const updatedProject = await updateProjectApi(id,dto);
 
     if (updatedProject) {
       const index = projects.value.findIndex(p => p.id === id);
@@ -76,7 +97,17 @@ export const useProjectStore = defineStore('project', () => {
       undoStack.value.pop();
       return null;
     }
-  }*/
+  }
+
+  async function deleteProject(id: string): Promise<void> {
+    saveSnapshot();
+    await deleteProjectApi(id);
+    if (!deleteError.value) {
+      projects.value = projects.value.filter((project) => project.id !== id);
+    } else {
+      undoStack.value.pop();
+    }
+  }
 
   // --- HISTORIQUE (UNDO / REDO) ---
   function saveSnapshot() {
@@ -105,16 +136,21 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   return {
-    // États et Données
     projects,
 
-    // États de chargements (distincts et précis !)
+    // États de chargements
     isLoading,
+    isSingleLoading,
     isCreating,
+    isUpdating,
+    isDeleting,
 
     // Erreurs réseau
     fetchError,
+    singleFetchError,
     createError,
+    updateError,
+    deleteError,
 
     // Undo / Redo
     canUndo,
@@ -124,7 +160,10 @@ export const useProjectStore = defineStore('project', () => {
 
     // Actions métiers
     loadProjects,
+    getProjectById, // 💡 Exposé pour ton composant !
     addProject,
-    deleteLocalTask
+    updateProject,  // 💡 Exposé pour ton composant !
+    deleteLocalTask,
+    deleteProject,
   };
 });
