@@ -30,10 +30,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        // 💡 Désactive le CSRF globalement et s'assure d'ignorer la console H2
+                        .ignoringRequestMatchers("/h2-console/**")
+                        .disable()
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/h2-console/**").permitAll() // Portes d'entrées publiques
+                        .requestMatchers("/api/auth/login", "/h2-console/**","/api/projects/**").permitAll() // Portes d'entrées publiques
                         .anyRequest().authenticated() // Tout le reste requiert un token valide
                 )
 

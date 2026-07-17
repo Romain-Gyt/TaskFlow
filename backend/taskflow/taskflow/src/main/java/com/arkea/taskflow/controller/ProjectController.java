@@ -2,17 +2,17 @@ package com.arkea.taskflow.controller;
 
 import com.arkea.taskflow.dto.ProjectRequest;
 import com.arkea.taskflow.dto.ProjectResponse;
+
 import com.arkea.taskflow.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/projects")
@@ -33,8 +33,14 @@ public class ProjectController {
         return projectService.findAllProjects();
     }
 
+    @GetMapping("/{id}")
+    public ProjectResponse getProjectById(@PathVariable String id) {
+        return projectService.findProjectById(id);
+    }
+
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@RequestBody ProjectRequest project){
+        log.info("Creation de la tache: {}", project);
        ProjectResponse createdProject = projectService.createProject(project);
 
        URI location = ServletUriComponentsBuilder
@@ -45,6 +51,22 @@ public class ProjectController {
         return ResponseEntity
                 .created(location)
                 .body(createdProject);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProjectResponse> updateProject(
+            @PathVariable String id,
+            @RequestBody ProjectRequest projectRequest
+    ) {
+        log.info("[API PUT] Requête de mise à jour reçue pour l'ID : {} avec le corps : {}", id, projectRequest);
+        ProjectResponse updatedProject = projectService.updateProject(id, projectRequest);
+        return ResponseEntity.ok(updatedProject);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable String id){
+        projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

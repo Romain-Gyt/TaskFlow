@@ -10,13 +10,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 @Mapper(
-        componentModel = MappingConstants.ComponentModel.SPRING,
-        builder = @Builder(disableBuilder = true)
+        componentModel = MappingConstants.ComponentModel.SPRING
 )
 public interface TaskMapper {
-    @Mapping(target = "id", ignore = true)
     Task fromRequest(ProjectTaskRequest taskRequest);
-    @Mapping(target = "id", ignore = true)
     Task fromTaskRequest(CreateTaskRequest taskRequest);
     @Mapping(target = "projectId", source = "project.id")
     TaskResponse toResponse(Task task);

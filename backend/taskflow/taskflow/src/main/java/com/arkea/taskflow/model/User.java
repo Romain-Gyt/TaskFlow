@@ -2,11 +2,16 @@ package com.arkea.taskflow.model;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,10 +23,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    public User() {}
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
+    protected User() {}
+    private User(Builder builder) {
+        this.email = builder.email;
+        this.password = builder.password;
     }
 
     public UUID getId() {
@@ -36,16 +41,24 @@ public class User {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void changeEmail(String newEmail){
+        this.email = validate(newEmail);
+    }
+
+    public void changePassword(String newHashedPassword){
+        this.password = Objects.requireNonNull(newHashedPassword,"Password is Required");
+    }
+
+    private String validate(String email){
+        Objects.requireNonNull(email,"email is required");
+        if(!EMAIL_PATTERN.matcher(email).matches()){
+            throw new IllegalArgumentException("Invalid email format: " + email);
+        }
+        return email;
     }
 
     @Override
@@ -53,7 +66,6 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + email + '\'' +
-                ", password='" + password + '\'' +
                 '}';
     }
 
@@ -76,7 +88,9 @@ public class User {
         }
 
         public User build() {
-           return new User(email, password);
+            Objects.requireNonNull(email, "email is required");
+            Objects.requireNonNull(password, "password is required");
+           return new User(this);
         }
     }
 }

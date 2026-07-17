@@ -1,0 +1,48 @@
+### Variables Globales (Optionnel : IntelliJ permet de les externaliser)
+@baseUrl = http://localhost:8080/api/projects
+
+### 1. Récupérer tous les projets
+GET {{baseUrl}}
+Accept: application/json
+
+###
+
+### 2. Créer un nouveau projet
+# @name createProject
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "name": "Socle Arkéa - Phase 1",
+  "description": "Déploiement de l'architecture et des bonnes pratiques de sécurité."
+}
+
+### Retenir l'ID du projet créé pour les requêtes suivantes
+@generatedId = {{createProject.response.body.id}}
+
+
+### 3. Récupérer un projet par son ID
+GET {{baseUrl}}/{{generatedId}}
+Accept: application/json
+
+###
+
+### 4. Mettre à jour les détails du projet
+PUT {{baseUrl}}/{{generatedId}}
+Content-Type: application/json
+
+{
+  "name": "Socle Arkéa - Phase 1 (Mis à jour)",
+  "description": "Mise à jour des spécifications de l'architecture défensive."
+}
+
+###
+
+### 5. Supprimer le projet
+DELETE {{baseUrl}}/{{generatedId}}
+
+###
+
+### 6. Vérifier la suppression (Doit renvoyer une erreur 404 ou 500 selon ton ExceptionHandler)
+GET {{baseUrl}}/{{generatedId}}
+Accept: application/json
