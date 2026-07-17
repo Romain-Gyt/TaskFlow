@@ -8,7 +8,7 @@ export const useProjectStore = defineStore('project', () => {
   const projects = ref<Project[]>([]);
   const undoStack = ref<string[]>([]);
   const redoStack = ref<string[]>([]);
-
+  const rseScore = ref<number>(0);
   const canUndo = computed(() => undoStack.value.length > 0);
   const canRedo = computed(() => redoStack.value.length > 0);
 
@@ -47,6 +47,12 @@ export const useProjectStore = defineStore('project', () => {
     error: deleteError,
     execute: deleteProjectApi
   } = useAsync((id: string) => projectService.deleteProject(id));
+
+  const {
+    loading: isRseLoading,
+    error: rseError,
+    execute: fetchRseScoreApi
+  } = useAsync(() => projectService.getGlobalRseScore());
 
 
   // ==========================================
@@ -109,6 +115,13 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function loadRseScore() {
+    const score = await fetchRseScoreApi();
+    if (score !== null) {
+      rseScore.value = score;
+    }
+  }
+
   // --- HISTORIQUE (UNDO / REDO) ---
   function saveSnapshot() {
     undoStack.value.push(JSON.stringify(projects.value));
@@ -137,6 +150,7 @@ export const useProjectStore = defineStore('project', () => {
 
   return {
     projects,
+    rseScore,
 
     // États de chargements
     isLoading,
@@ -144,6 +158,7 @@ export const useProjectStore = defineStore('project', () => {
     isCreating,
     isUpdating,
     isDeleting,
+    isRseLoading,
 
     // Erreurs réseau
     fetchError,
@@ -151,6 +166,7 @@ export const useProjectStore = defineStore('project', () => {
     createError,
     updateError,
     deleteError,
+    rseError,
 
     // Undo / Redo
     canUndo,
@@ -165,5 +181,6 @@ export const useProjectStore = defineStore('project', () => {
     updateProject,  // 💡 Exposé pour ton composant !
     deleteLocalTask,
     deleteProject,
+    loadRseScore,
   };
 });

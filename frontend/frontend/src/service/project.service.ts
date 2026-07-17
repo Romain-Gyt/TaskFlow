@@ -25,5 +25,9 @@ export const projectService = {
   },
   async deleteProject(projectId: string): Promise<void> {
     const response = await api.delete(`/api/projects/${projectId}`);
+  },
+  async getGlobalRseScore(): Promise<number> {
+    const response = await api.get<number>('/api/projects/rse-score');
+    return response.data;
   }
 }

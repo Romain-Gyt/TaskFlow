@@ -10,6 +10,9 @@ const { projects, isLoading, fetchError, isDeleting, deleteError, canUndo, canRe
 const { loadProjects, deleteProject, deleteLocalTask, undo, redo } = store;
 
 onMounted(async () => {
+
+    // On récupère le score calculé par Spring Boot au montage du dashboard
+  await store.loadRseScore();
   await loadProjects();
 });
 

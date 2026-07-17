@@ -5,6 +5,8 @@ import TaskItem from "@/components/molecules/TaskItem.vue";
 // Représente la liste des tâches à envoyer à l'API (sans ID à la création)
 interface ProjectTaskRequest {
   title: string;
+  status: string;
+
 }
 
 // v-model bidirectionnel lié aux tasks du formulaire parent
@@ -15,7 +17,10 @@ defineProps<{
 }>();
 
 const addTask = (title: string) => {
-  tasks.value.push({ title });
+  tasks.value.push({
+    title,
+    status: "A_FAIRE"
+  });
 };
 
 const removeTask = (index: number) => {

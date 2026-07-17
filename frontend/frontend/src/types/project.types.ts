@@ -18,6 +18,7 @@ export const ProjectSchemaList = z.array(ProjectSchema);
 
 // Le schéma de création envoyé à l'API (Request)
 export const ProjectRequestSchema = z.object({
+  id: z.string().uuid("Invalid Project ID format").optional(),
   name: z.string().min(1, "Name is required").max(255, "Name must be less than 255 characters"),
   description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
   tasks: z.array(TaskSchema).default([]) // Utilise le DTO de tâche sans ID dédié à la création d'un projet
